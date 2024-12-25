@@ -1,1 +1,1 @@
-# pump-fun-contracts
+# Alternative Pump.fun Smart Contracts

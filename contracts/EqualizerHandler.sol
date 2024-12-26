@@ -6,7 +6,7 @@ import {ISolidlyRouter} from "./interfaces/ISolidlyRouter.sol";
 import {ISolidlyFactory} from "./interfaces/ISolidlyFactory.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {SonicPad} from "./SonicPad.sol";
+import {Sp33dFun} from "./Sp33dFun.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 struct Referral {
@@ -36,19 +36,19 @@ contract EqualizerHandler is IDexHandler, Ownable {
     address constant WETH = address(0x039e2fB66102314Ce7b64Ce5Ce3E5183bc94aD38);
 
     address public referrer;
-    address public sonicCouncil;
+    address public sp33dCouncil;
 
     mapping(address => address) public lockerForToken;
     mapping(address => uint) public lockerIdForToken;
 
     bool public releaseToCouncil = false;
 
-    SonicPad sonicPad;
+    Sp33dFun sp33dFun;
 
-    constructor(SonicPad _sonicPad) Ownable(msg.sender) {
-        sonicPad = _sonicPad;
+    constructor(Sp33dFun _sp33dFun) Ownable(msg.sender) {
+        sp33dFun = _sp33dFun;
         referrer = address(msg.sender);
-        sonicCouncil = address(msg.sender);
+        sp33dCouncil = address(msg.sender);
     }
 
     receive() external payable {}
@@ -69,14 +69,14 @@ contract EqualizerHandler is IDexHandler, Ownable {
             address(this), // keep the LP tokens
             block.timestamp
         );
-        uint256 tokenId = sonicPad.tokenIndexes(address(token));
-        address owner = sonicPad.getToken(tokenId).owner;
+        uint256 tokenId = sp33dFun.tokenIndexes(address(token));
+        address owner = sp33dFun.getToken(tokenId).owner;
 
         address lp = factory.getPair(address(token), router.weth(), false);
         IERC20(lp).approve(address(locker), amount);
         Referral memory referral = Referral(referrer, 0.1 ether);
 
-        address lockOwner = releaseToCouncil ? address(sonicCouncil) : owner;
+        address lockOwner = releaseToCouncil ? address(sp33dCouncil) : owner;
         uint256 releaseTime = releaseToCouncil
             ? block.timestamp + 30 days
             : type(uint256).max;
@@ -101,15 +101,15 @@ contract EqualizerHandler is IDexHandler, Ownable {
         releaseToCouncil = _releaseToCouncil;
     }
 
-    function updateSonic(SonicPad _sonicPad) external onlyOwner {
-        sonicPad = _sonicPad;
+    function updateSp33dFun(Sp33dFun _sp33dFun) external onlyOwner {
+        sp33dFun = _sp33dFun;
     }
 
     function updateReferrer(address _referrer) external onlyOwner {
         referrer = _referrer;
     }
 
-    function updateSonicCouncil(address _sonicCouncil) external onlyOwner {
-        sonicCouncil = _sonicCouncil;
+    function updateSp33dCouncil(address _sp33dCouncil) external onlyOwner {
+        sp33dCouncil = _sp33dCouncil;
     }
 }

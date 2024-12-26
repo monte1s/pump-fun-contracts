@@ -6,7 +6,7 @@ import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Pau
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {Sp33dFunPool} from "./Sp33dFunPool.sol";
-import {BaseSonicToken} from "./BaseSonicToken.sol";
+import {Sp33dFunToken} from "./Sp33dFunToken.sol";
 
 contract Ownable {
     address private _owner;
@@ -152,7 +152,7 @@ contract Sp33dFun is Ownable, Initializable, PausableUpgradeable {
             sp33dFunPool = Clones.clone(poolImpl);
         }
 
-        BaseSonicToken(instance).initialize(
+        Sp33dFunToken(instance).initialize(
             name,
             symbol,
             sp33dFunPool,
@@ -223,9 +223,9 @@ contract Sp33dFun is Ownable, Initializable, PausableUpgradeable {
                 poolType: type(uint32).max,
                 tokenType: type(uint32).max,
                 dexHandler: type(uint32).max,
-                name: BaseSonicToken(token).name(),
-                symbol: BaseSonicToken(token).symbol(),
-                maxSupply: BaseSonicToken(token).totalSupply()
+                name: Sp33dFunToken(token).name(),
+                symbol: Sp33dFunToken(token).symbol(),
+                maxSupply: Sp33dFunToken(token).totalSupply()
             })
         );
 
@@ -240,9 +240,9 @@ contract Sp33dFun is Ownable, Initializable, PausableUpgradeable {
 
         emit Launched(
             tokenOwner,
-            BaseSonicToken(token).name(),
-            BaseSonicToken(token).symbol(),
-            BaseSonicToken(token).totalSupply(),
+            Sp33dFunToken(token).name(),
+            Sp33dFunToken(token).symbol(),
+            Sp33dFunToken(token).totalSupply(),
             token,
             pool,
             address(0)

@@ -5,7 +5,7 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
-import {BaseSonicPool} from "./BaseSonicPool.sol";
+import {Sp33dFunPool} from "./Sp33dFunPool.sol";
 import {BaseSonicToken} from "./BaseSonicToken.sol";
 
 contract Ownable {
@@ -46,12 +46,12 @@ contract Ownable {
     }
 }
 
-contract SonicPad is Ownable, Initializable, PausableUpgradeable {
+contract Sp33dFun is Ownable, Initializable, PausableUpgradeable {
     using Address for address payable;
 
     struct Token {
         address instance;
-        address sonicPool;
+        address sp33dFunPool;
         address owner;
         uint32 poolType;
         uint32 tokenType;
@@ -63,7 +63,7 @@ contract SonicPad is Ownable, Initializable, PausableUpgradeable {
 
     // templates for each pool type
     address[] public tokenImplementations;
-    address[] public sonicPoolImplementations;
+    address[] public sp33dFunPoolImplementations;
     address[] public dexHandlers;
 
     Token[] internal tokens;
@@ -113,7 +113,7 @@ contract SonicPad is Ownable, Initializable, PausableUpgradeable {
     ) public onlyOwner {
         // Initialize contract
         tokenImplementations = _tokenImpls;
-        sonicPoolImplementations = _poolImpls;
+        sp33dFunPoolImplementations = _poolImpls;
         dexHandlers = _dexHandlers;
         feeTo = _feeTo;
     }
@@ -133,13 +133,13 @@ contract SonicPad is Ownable, Initializable, PausableUpgradeable {
         if (msg.value != LAUNCH_FEE) revert FeeMismatch();
 
         address instance;
-        address sonicPool;
+        address sp33dFunPool;
         address dexHandlerAddress = dexHandlers[dexHandler];
 
         {
             // avoid stack too deep
             address tokenImpl = tokenImplementations[tokenType];
-            address poolImpl = sonicPoolImplementations[poolType];
+            address poolImpl = sp33dFunPoolImplementations[poolType];
 
             if (
                 tokenImpl == address(0) ||
@@ -149,13 +149,13 @@ contract SonicPad is Ownable, Initializable, PausableUpgradeable {
 
             // Launch token
             instance = Clones.clone(tokenImpl);
-            sonicPool = Clones.clone(poolImpl);
+            sp33dFunPool = Clones.clone(poolImpl);
         }
 
         BaseSonicToken(instance).initialize(
             name,
             symbol,
-            sonicPool,
+            sp33dFunPool,
             dexHandlerAddress,
             MAX_SUPPLY,
             rewardReceiver
@@ -164,7 +164,7 @@ contract SonicPad is Ownable, Initializable, PausableUpgradeable {
         tokens.push(
             Token({
                 instance: instance,
-                sonicPool: sonicPool,
+                sp33dFunPool: sp33dFunPool,
                 owner: tokenOwner,
                 poolType: poolType,
                 tokenType: tokenType,
@@ -176,15 +176,14 @@ contract SonicPad is Ownable, Initializable, PausableUpgradeable {
         );
         tokenIndexes[instance] = tokens.length - 1;
 
-        address baseToken = BaseSonicPool(sonicPool).token0();
+        address baseToken = Sp33dFunPool(sp33dFunPool).token0();
 
         // uniswap compatibility
-        getPair[baseToken][address(instance)] = sonicPool;
-        getPair[address(instance)][baseToken] = sonicPool;
-        allPairs.push(sonicPool);
+        getPair[baseToken][address(instance)] = sp33dFunPool;
+        getPair[address(instance)][baseToken] = sp33dFunPool;
+        allPairs.push(sp33dFunPool);
 
-        // Initialize sonic pool
-        BaseSonicPool(sonicPool).initialize(
+        Sp33dFunPool(sp33dFunPool).initialize(
             instance,
             feeTo,
             dexHandlerAddress,
@@ -197,7 +196,7 @@ contract SonicPad is Ownable, Initializable, PausableUpgradeable {
             symbol,
             MAX_SUPPLY,
             instance,
-            sonicPool,
+            sp33dFunPool,
             dexHandlerAddress
         );
 
@@ -205,7 +204,7 @@ contract SonicPad is Ownable, Initializable, PausableUpgradeable {
         emit PairCreated(
             baseToken,
             address(instance),
-            sonicPool,
+            sp33dFunPool,
             tokens.length - 1
         );
     }
@@ -219,7 +218,7 @@ contract SonicPad is Ownable, Initializable, PausableUpgradeable {
         tokens.push(
             Token({
                 instance: token,
-                sonicPool: pool,
+                sp33dFunPool: pool,
                 owner: tokenOwner,
                 poolType: type(uint32).max,
                 tokenType: type(uint32).max,
@@ -230,7 +229,7 @@ contract SonicPad is Ownable, Initializable, PausableUpgradeable {
             })
         );
 
-        address baseToken = BaseSonicPool(pool).token0();
+        address baseToken = Sp33dFunPool(pool).token0();
 
         tokenIndexes[token] = tokens.length - 1;
 

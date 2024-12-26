@@ -6,7 +6,7 @@ import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/
 import {ERC20BurnableUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol";
 import {IDexHandler} from "./interfaces/IDexHandler.sol";
 
-contract BaseSonicToken is
+contract Sp33dFunToken is
     Initializable,
     ERC20Upgradeable,
     ERC20BurnableUpgradeable // not upgradeable, just cloneable
@@ -23,7 +23,7 @@ contract BaseSonicToken is
     error Unauthorized();
 
     address public pair;
-    address public sonicPool;
+    address public sp33dFunPool;
     bool public allowAddLiquidity;
 
     constructor() {
@@ -33,7 +33,7 @@ contract BaseSonicToken is
     function initialize(
         string memory _name,
         string memory _decimals,
-        address _sonicPool,
+        address _sp33dFunPool,
         address _dexHandler,
         uint256 _initialSupply,
         address rewardReceiver
@@ -44,12 +44,12 @@ contract BaseSonicToken is
         ) revert Bad_Supply();
 
         __ERC20_init(_name, _decimals);
-        sonicPool = _sonicPool;
+        sp33dFunPool = _sp33dFunPool;
         pair = IDexHandler(_dexHandler).createPair(address(this));
         // 1% vested to creator
         reward = _initialSupply / 100;
         _mint(rewardReceiver, reward); // creator fee
-        _mint(_sonicPool, _initialSupply - reward);
+        _mint(_sp33dFunPool, _initialSupply - reward);
     }
 
     function _update(
@@ -57,14 +57,14 @@ contract BaseSonicToken is
         address to,
         uint256 value
     ) internal virtual override {
-        if (!allowAddLiquidity && to == pair && from != sonicPool)
+        if (!allowAddLiquidity && to == pair && from != sp33dFunPool)
             revert PoolingNotAllowed();
 
         super._update(from, to, value);
     }
 
     function onSaleEnd() external virtual {
-        if (msg.sender != sonicPool) revert Unauthorized();
+        if (msg.sender != sp33dFunPool) revert Unauthorized();
         allowAddLiquidity = true;
     }
 }

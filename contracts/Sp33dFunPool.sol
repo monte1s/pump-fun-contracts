@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.13;
 
-import {SonicPad} from "./SonicPad.sol";
+import {Sp33dFun} from "./Sp33dFun.sol";
 import {BondingCurve} from "./BondingCurve.sol";
-import {BaseSonicToken} from "./BaseSonicToken.sol";
+import {Sp33dFunToken} from "./Sp33dFunToken.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -11,7 +11,7 @@ import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/ut
 import {IDexHandler} from "./interfaces/IDexHandler.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract BaseSonicPool is Initializable, ReentrancyGuardUpgradeable {
+contract Sp33dFunPool is Initializable, ReentrancyGuardUpgradeable {
     using SafeERC20 for IERC20;
     using Address for address payable;
 
@@ -22,7 +22,7 @@ contract BaseSonicPool is Initializable, ReentrancyGuardUpgradeable {
 
     BondingCurve.Liquidity internal liq;
     IERC20 public token;
-    SonicPad public factory;
+    Sp33dFun public factory;
     IDexHandler public dexHandler;
     address payable public feeReceiver;
 
@@ -78,7 +78,7 @@ contract BaseSonicPool is Initializable, ReentrancyGuardUpgradeable {
         address _dexHandler,
         bytes memory _poolParams
     ) public initializer {
-        factory = SonicPad(payable(msg.sender));
+        factory = Sp33dFun(payable(msg.sender));
         dexHandler = IDexHandler(_dexHandler);
         feeReceiver = payable(_feeReceiver);
         token = IERC20(_token);
@@ -200,7 +200,7 @@ contract BaseSonicPool is Initializable, ReentrancyGuardUpgradeable {
             token.balanceOf(address(this))
         );
 
-        BaseSonicToken(address(token)).onSaleEnd(); // allow adding liquidity
+        Sp33dFunToken(address(token)).onSaleEnd(); // allow adding liquidity
         dexHandler.handleLiquidity(address(token));
 
         emit Locked();
